@@ -11,7 +11,7 @@ export const kinoSlice = createSlice({
     },
     reducers: {
         setData: (state, action) => {
-            state.data = [...state.data, ...action.payload]
+            state.data = [...state.data, action.payload]
         },
         setCurrentDrawNumber: (state, action) => {
             state.currentDrawNumber = action.payload;
