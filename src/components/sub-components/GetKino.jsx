@@ -2,24 +2,32 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { setData, setHasMore, setPage, loadDraw } from "../../reducers/kinoSlice";
+import {
+  setData,
+  setHasMore,
+  setPage,
+  loadDraw,
+} from "../../reducers/kinoSlice";
+import KinoCard from "./Modal";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function GetKino() {
   const data = useSelector((state) => state.kino.data);
-  const currentDrawNumber = useSelector((state) => state.kino.currentDrawNumber);
+  const currentDrawNumber = useSelector(
+    (state) => state.kino.currentDrawNumber
+  );
   const page = useSelector((state) => state.kino.page);
   const hasMore = useSelector((state) => state.kino.hasMore);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(loadDraw());
-  }, [dispatch]);
+    loadData();
+  });
 
   const handleLoadMore = () => {
     dispatch(setPage(page + 1));
-    dispatch(loadDraw())
-    dispatch(loadData())
+    dispatch(loadDraw());
   };
 
   const loadData = async () => {
@@ -31,9 +39,9 @@ export default function GetKino() {
         },
       });
       const newData = response.data || [];
-      console.log(newData);
       setData([...newData]);
       setHasMore(newData.length > 0);
+      console.log(newData);
     } catch (error) {
       console.log(error);
     }
@@ -51,17 +59,7 @@ export default function GetKino() {
         <Row xs={1} sm={2} md={3} lg={4} xl={5} xxl={5}>
           {data.map((item, index) => (
             <Col key={index}>
-              <Card>
-                <Card.Body>
-                  <Card.Title>
-                    Game Number: {item.gameNumber}, Bonus: {item.bonus}
-                  </Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    Draw Numbers:
-                  </Card.Subtitle>
-                  <Card.Text>{item.drawNumbers.join(", ")}</Card.Text>
-                </Card.Body>
-              </Card>
+              <KinoCard/>
             </Col>
           ))}
         </Row>

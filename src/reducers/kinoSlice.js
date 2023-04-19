@@ -11,7 +11,7 @@ export const kinoSlice = createSlice({
     },
     reducers: {
         setData: (state, action) => {
-            state.data = [...state.data, action.payload]
+            state.data = [...state.data, ...action.payload]
         },
         setCurrentDrawNumber: (state, action) => {
             state.currentDrawNumber = action.payload;
@@ -37,14 +37,15 @@ export const loadDraw = () => async (dispatch, getState) => {
             params: {
                 drawid: currentDrawNumber,
                 number: 20,
-                sort: `asc`,
+                sort: `desc`,
                 page: page,
             },
         });
         const newData = res.data || [];
         console.log(newData)
         console.log(newData[0].gameNumber)
-        dispatch(setData(...newData))
+        dispatch(setCurrentDrawNumber(newData[0].gameNumber))
+        dispatch(setData(newData))
         dispatch(setHasMore(newData.length > 0));
     } catch (error) {
         console.log(error)
