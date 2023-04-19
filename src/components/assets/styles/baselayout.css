@@ -11,4 +11,10 @@
 
 .card:hover {
     background-color: blue;
+    outline-color: azure;
+    outline-style: double;
+}
+
+h1{
+    color: whitesmoke;
 }

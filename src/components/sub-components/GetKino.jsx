@@ -1,35 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { Card, Col, Container, Row } from "react-bootstrap";
+import { setData, setHasMore, setPage, loadDraw } from "../../reducers/kinoSlice";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function GetKino() {
-  const [data, setData] = useState([]);
-  const [currentDrawNumber, setCurrentDrawNumber] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const data = useSelector((state) => state.kino.data);
+  const currentDrawNumber = useSelector((state) => state.kino.currentDrawNumber);
+  const page = useSelector((state) => state.kino.page);
+  const hasMore = useSelector((state) => state.kino.hasMore);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    loadDraw();
-  }, );
+    dispatch(loadDraw());
+  }, [dispatch]);
 
-  const loadDraw = async () => {
-    try {
-      const web =
-        "https://puertorico.secondchancebonuszone.com/kino/past_drawings.php";
-      const res = await axios.get(web, {
-        params: {
-          page: page,
-        },
-      });
-      const currentData = res.data || [];
-      console.log(currentData);
-      setCurrentDrawNumber(currentData[0].gameNumber);
-      console.log("currentDrawNumber: ", currentDrawNumber);
-      loadData();
-    } catch (error) {
-      console.log(error);
-    }
+  const handleLoadMore = () => {
+    dispatch(setPage(page + 1));
+    dispatch(loadDraw())
+    dispatch(loadData())
   };
 
   const loadData = async () => {
@@ -42,7 +32,6 @@ export default function GetKino() {
       });
       const newData = response.data || [];
       console.log(newData);
-      console.log(newData[0].gameNumber);
       setData([...newData]);
       setHasMore(newData.length > 0);
     } catch (error) {
@@ -52,9 +41,10 @@ export default function GetKino() {
 
   return (
     <Container fluid className="container">
+      <h1>Kino</h1>
       <InfiniteScroll
         dataLength={data.length}
-        next={() => setPage(page + 1)}
+        next={handleLoadMore}
         hasMore={hasMore}
         loader={<h4>Loading...</h4>}
       >
