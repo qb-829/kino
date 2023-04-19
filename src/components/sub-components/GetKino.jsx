@@ -1,14 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { Card, Col, Container, Row } from "react-bootstrap";
+import { Card, Col, Container, Row, Modal, Button } from "react-bootstrap";
 import {
   setData,
   setHasMore,
   setPage,
   loadDraw,
 } from "../../reducers/kinoSlice";
-import KinoCard from "./Modal";
+// import KinoCard from "./Modal";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function GetKino() {
@@ -39,13 +39,26 @@ export default function GetKino() {
         },
       });
       const newData = response.data || [];
-      setData([...newData]);
+      dispatch(setData([...newData]));
       setHasMore(newData.length > 0);
       console.log(newData);
     } catch (error) {
       console.log(error);
     }
   };
+
+ 
+    const [showModal, setShowModal] = useState(false);
+    const [modalDrawNumbers, setModalDrawNumbers] = useState(false);
+  
+    const handleShowModal = (drawNumbers) => {
+        setModalDrawNumbers(drawNumbers)
+      setShowModal(true);
+    };
+  
+    const handleCloseModal = () => {
+      setShowModal(false);
+    };
 
   return (
     <Container fluid className="container">
@@ -59,7 +72,36 @@ export default function GetKino() {
         <Row xs={1} sm={2} md={3} lg={4} xl={5} xxl={5}>
           {data.map((item, index) => (
             <Col key={index}>
-              <KinoCard/>
+              <Card onClick={() => handleShowModal(item.drawNumbers)}>
+                <Card.Body>
+                  <Card.Title>
+                    Game Number: {item.gameNumber}, Bonus: {item.bonus}
+                  </Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    Draw Numbers:
+                  </Card.Subtitle>
+                  <Card.Text>{item.drawNumbers.join(", ")}</Card.Text>
+                </Card.Body>
+              </Card>
+        <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closebutton>
+                  <Modal.Title>Game Number: {item.gameNumber}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <p>Draw Numbers:</p>
+                  <ul>
+                    {item.drawNumbers &&
+                      item.drawNumbers.map((number, index) => (
+                        <li key={index}>{number}</li>
+                      ))}
+                  </ul>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleCloseModal}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+              </Modal>
             </Col>
           ))}
         </Row>
