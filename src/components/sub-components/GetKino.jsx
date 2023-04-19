@@ -1,3 +1,9 @@
+// This Getkino.jsx file holds the functionality of the App.
+// On mount, the useEffect hook loads the loadDraw function from 
+// kinoSlice, as well as making the actions setData, setHasMore,
+// and setPage available.
+// It also returns the react-bootstrap card and modal to display to the user.
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -8,34 +14,43 @@ import {
   setPage,
   loadDraw,
 } from "../../reducers/kinoSlice";
-// import KinoCard from "./Modal";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function GetKino() {
+  // Update data set
   const data = useSelector((state) => state.kino.data);
+  // Update the currentDrawNumber to pass through second API call.
   const currentDrawNumber = useSelector(
     (state) => state.kino.currentDrawNumber
   );
+  // Determine if page number has changed
   const page = useSelector((state) => state.kino.page);
+  // Determine whether there are additional data to display
   const hasMore = useSelector((state) => state.kino.hasMore);
   const dispatch = useDispatch();
 
+  // Load loadDraw and loadData functions when component is mounted
   useEffect(() => {
     dispatch(loadDraw());
     loadData();
   });
 
+  // Load additional data to display in cards and modal
   const handleLoadMore = () => {
     dispatch(setPage(page + 1));
     dispatch(loadDraw());
   };
 
+  // Second API call to fetch and update Draw data with past draw information
   const loadData = async () => {
     try {
       const url = `https://puertorico.secondchancebonuszone.com/kino/past_drawings.php?drawid=${currentDrawNumber}&number=20&sort=desc`;
       const response = await axios.get(url, {
         params: {
-          page: page,
+          drawid: currentDrawNumber,
+        number: 20,
+        sort: `desc`,
+        page: page,
         },
       });
       const newData = response.data || [];
@@ -47,18 +62,18 @@ export default function GetKino() {
     }
   };
 
- 
-    const [showModal, setShowModal] = useState(false);
-    const [modalDrawNumbers, setModalDrawNumbers] = useState(false);
-  
-    const handleShowModal = (drawNumbers) => {
-        setModalDrawNumbers(drawNumbers)
-      setShowModal(true);
-    };
-  
-    const handleCloseModal = () => {
-      setShowModal(false);
-    };
+  const [showModal, setShowModal] = useState(false);
+  const [modalDrawNumbers, setModalDrawNumbers] = useState([]);
+
+  const handleShowModal = (gameNumbers) => {
+    const selectedCard = data.find(item => item.gameNumber === gameNumbers)
+    setModalDrawNumbers(selectedCard.drawNumbers);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
   return (
     <Container fluid className="container">
@@ -72,7 +87,7 @@ export default function GetKino() {
         <Row xs={1} sm={2} md={3} lg={4} xl={5} xxl={5}>
           {data.map((item, index) => (
             <Col key={index}>
-              <Card onClick={() => handleShowModal(item.drawNumbers)}>
+              <Card onClick={() => handleShowModal(item.gameNumber)}>
                 <Card.Body>
                   <Card.Title>
                     Game Number: {item.gameNumber}, Bonus: {item.bonus}
@@ -80,21 +95,21 @@ export default function GetKino() {
                   <Card.Subtitle className="mb-2 text-muted">
                     Draw Numbers:
                   </Card.Subtitle>
-                  <Card.Text>{item.drawNumbers.join(", ")}</Card.Text>
+                  {item.drawNumbers && <Card.Text>{item.drawNumbers.join(", ")}</Card.Text>}
                 </Card.Body>
               </Card>
-        <Modal show={showModal} onHide={handleCloseModal}>
+              <Modal show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closebutton>
                   <Modal.Title>Game Number: {item.gameNumber}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <p>Draw Numbers:</p>
-                  <ul>
-                    {item.drawNumbers &&
-                      item.drawNumbers.map((number, index) => (
-                        <li key={index}>{number}</li>
+                  <p>
+                    {modalDrawNumbers &&
+                      modalDrawNumbers.map((number, index) => (
+                        <p key={index}>{number}</p>
                       ))}
-                  </ul>
+                  </p>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={handleCloseModal}>

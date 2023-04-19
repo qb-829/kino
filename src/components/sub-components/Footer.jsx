@@ -1,3 +1,5 @@
+// This Footer.jsx creates a footer component 
+// to be imported and used on the Home page
 
 export default function Footer(){
     return <>
