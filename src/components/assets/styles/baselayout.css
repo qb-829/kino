@@ -1,0 +1,14 @@
+.container {
+    background-color: black;
+  }
+
+.card {
+    background-color: lightblue;
+    flex: 1;
+    text-align: center;
+    margin: .25rem;
+  }
+
+.card:hover {
+    background-color: blue;
+}

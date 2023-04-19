@@ -1,47 +1,81 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card } from "react-bootstrap";
+import { Card, Col, Container, Row } from "react-bootstrap";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function GetKino() {
-//   const url = "https://puertorico.secondchancebonuszone.com/kino/past_drawings.php";
-  const url = "https://puertorico.secondchancebonuszone.com/kino/past_drawings.php?drawid=601081&number=20&sort=asc"
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [currentDrawNumber, setCurrentDrawNumber] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     loadDraw();
-  }, []);
+  }, );
 
   const loadDraw = async () => {
     try {
-      const response = await axios.get(url);
-      setData(response.data);
-      setLoading(false);
-      console.log(response.data.json);
+      const web =
+        "https://puertorico.secondchancebonuszone.com/kino/past_drawings.php";
+      const res = await axios.get(web, {
+        params: {
+          page: page,
+        },
+      });
+      const currentData = res.data || [];
+      console.log(currentData);
+      setCurrentDrawNumber(currentData[0].gameNumber);
+      console.log("currentDrawNumber: ", currentDrawNumber);
+      loadData();
     } catch (error) {
       console.log(error);
-      setError(error);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  const loadData = async () => {
+    try {
+      const url = `https://puertorico.secondchancebonuszone.com/kino/past_drawings.php?drawid=${currentDrawNumber}&number=20&sort=desc`;
+      const response = await axios.get(url, {
+        params: {
+          page: page,
+        },
+      });
+      const newData = response.data || [];
+      console.log(newData);
+      console.log(newData[0].gameNumber);
+      setData([...newData]);
+      setHasMore(newData.length > 0);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <div>
-      <h1>Kino past drawings</h1>
-      {data.map((item, index) => (
-        <Card key={index} className="my-4">
-          <Card.Header>
-            <h4 className="mb-0">Game Number: {item.gameNumber}</h4>
-          </Card.Header>
-          <Card.Body>
-            <p className="mb-0">Bonus: {item.bonus}</p>
-            <p className="mb-0">Draw Numbers: {item.drawNumbers.join(", ")}</p>
-          </Card.Body>
-        </Card>
-      ))}
-    </div>
+    <Container fluid className="container">
+      <InfiniteScroll
+        dataLength={data.length}
+        next={() => setPage(page + 1)}
+        hasMore={hasMore}
+        loader={<h4>Loading...</h4>}
+      >
+        <Row xs={1} sm={2} md={3} lg={4} xl={5} xxl={5}>
+          {data.map((item, index) => (
+            <Col key={index}>
+              <Card>
+                <Card.Body>
+                  <Card.Title>
+                    Game Number: {item.gameNumber}, Bonus: {item.bonus}
+                  </Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    Draw Numbers:
+                  </Card.Subtitle>
+                  <Card.Text>{item.drawNumbers.join(", ")}</Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </InfiniteScroll>
+    </Container>
   );
 }
