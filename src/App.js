@@ -8,9 +8,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
   return (
     <div>
-      <Router basename={process.env.REACT_APP_PUBLIC_URL}>
+      <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/kino" element={<Home />} />
         </Routes>
       </Router>
     </div>

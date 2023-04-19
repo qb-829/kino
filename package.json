@@ -1,7 +1,7 @@
 {
   "name": "kino",
   "version": "0.1.0",
-  "homepage": "https://qb-829.github.io/kino",
+  "homepage": "https://qb-829.github.io/kino/",
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.4",
