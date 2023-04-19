@@ -1,6 +1,7 @@
 {
   "name": "kino",
   "version": "0.1.0",
+  "homepage": "https://qb-829.github.io/kino",
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.4",
@@ -26,7 +27,7 @@
     "deploy": "gh-pages -d build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },  
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -45,5 +46,8 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "https://qb-829.github.io/kino/"
+  
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
 }
